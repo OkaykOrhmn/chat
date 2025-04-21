@@ -5,4 +5,8 @@ class Routes {
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String me = '/auth/me';
+
+  //User
+  static const String status = '/user/status';
+  static const String statuses = '/user/statuses';
 }

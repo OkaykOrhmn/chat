@@ -1,3 +1,4 @@
+import 'package:chat/data/model/auth/me_model.dart';
 import 'package:chat/data/repositories/auth_repository.dart';
 import 'package:chat/data/storage/shared_preferences_helper.dart';
 import 'package:dio/dio.dart';
@@ -9,8 +10,8 @@ class UserProvider with ChangeNotifier {
   final bool _isLoggedIn = AuthTokenStorage.getToken().isNotEmpty;
   bool get isLoggedIn => _isLoggedIn;
 
-  dynamic _userData;
-  dynamic get userData => _userData;
+  MeModel? _userData;
+  MeModel get userData => _userData ?? MeModel();
 
   StateHandler userState = StateHandler.initial;
 

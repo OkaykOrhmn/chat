@@ -3,10 +3,17 @@ import 'dart:async';
 import 'package:chat/core/gen/assets.gen.dart';
 import 'package:chat/core/gen/flutter_icon_icons.dart';
 import 'package:chat/core/services/auth_services.dart';
+import 'package:chat/core/utils/empty_space.dart';
+import 'package:chat/data/enum/state_handler.dart';
+import 'package:chat/ui/pages/auth/provider/user_provider.dart';
+import 'package:chat/ui/pages/setting/edite_profile_page.dart';
 import 'package:chat/ui/pages/setting/settings_page.dart';
+import 'package:chat/ui/widgets/dialog.dart';
+import 'package:chat/ui/widgets/provider/status_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -129,11 +136,162 @@ class _HomePageState extends State<HomePage> {
       drawer: Drawer(
         child: Column(
           children: [
-            SizedBox(
-                width: double.infinity,
-                child: DrawerHeader(
-                  child: Assets.launcher.chatLauncherIcon.image(),
-                )),
+            Consumer<UserProvider>(builder: (context, auth, _) {
+              if (auth.userState == StateHandler.loaded) {
+                return SizedBox(
+                    width: double.infinity,
+                    child: DrawerHeader(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: Stack(
+                              children: [
+                                CircleAvatar(),
+                                if (auth.userData.isVerified ?? false)
+                                  Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Icon(
+                                        Icons.verified_rounded,
+                                        color: Colors.green,
+                                        size: 18,
+                                      ))
+                              ],
+                            ),
+                            title: Text(
+                              auth.userData.firstName ?? 'Unknow User',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              auth.userData.phomeNumber ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            trailing: InkWell(
+                              borderRadius: BorderRadius.circular(360),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const EditeProfilePage(),
+                                    ));
+                              },
+                              child: Icon(
+                                Icons.edit,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.amber.withValues(alpha: 0.2)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.star_fill,
+                                      size: 12,
+                                      color: Colors.amber,
+                                    ),
+                                    8.w,
+                                    Text(
+                                      '${(auth.userData.stars ?? 0)} Stars',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              8.w,
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary
+                                        .withValues(alpha: 0.2)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary),
+                                    ),
+                                    8.w,
+                                    Text(
+                                      (auth.userData.ghostMode ?? false)
+                                          ? 'Ghost Mode'
+                                          : 'Online',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          8.h,
+                          InkWell(
+                            onTap: () {
+                              context
+                                  .read<StatusProvider>()
+                                  .checkMyInformation();
+                              DialogManager(context).showListOfStatuses();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.2)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    auth.userData.status ?? 'Status Not set',
+                                    style:
+                                        Theme.of(context).textTheme.labelMedium,
+                                  ),
+                                  8.w,
+                                  Icon(Icons.arrow_forward_ios_rounded,
+                                      size: 12,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ));
+              }
+              return SizedBox.shrink();
+            }),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),

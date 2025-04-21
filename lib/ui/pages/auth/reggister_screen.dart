@@ -16,18 +16,18 @@ class ReggisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        PrimaryTextField(
+        TextFields.primaryTextField(
           controller: emailController,
           hintText: 'Email',
         ),
         16.h,
-        PrimaryTextField(
+        TextFields.primaryTextField(
           controller: passwordController,
           hintText: 'Password',
           isSecure: true,
         ),
         16.h,
-        PrimaryTextField(
+        TextFields.primaryTextField(
           controller: confirmPasswordController,
           hintText: 'Confirm Password',
           isSecure: true,

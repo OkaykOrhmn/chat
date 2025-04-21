@@ -14,12 +14,12 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        PrimaryTextField(
+        TextFields.primaryTextField(
           controller: emailController,
           hintText: 'Email',
         ),
         16.h,
-        PrimaryTextField(
+        TextFields.primaryTextField(
           controller: passwordController,
           hintText: 'Password',
           isSecure: true,

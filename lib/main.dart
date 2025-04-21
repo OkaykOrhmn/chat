@@ -5,6 +5,7 @@ import 'package:chat/ui/pages/auth/cubit/auth_cubit.dart';
 import 'package:chat/ui/pages/auth/provider/user_provider.dart';
 import 'package:chat/ui/theme/theme_brightnes_changer.dart';
 import 'package:chat/ui/theme/theme_changer.dart';
+import 'package:chat/ui/widgets/provider/status_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
@@ -33,6 +34,9 @@ void main() async {
       ChangeNotifierProvider<ThemeChanger>(create: (_) => ThemeChanger()),
       ChangeNotifierProvider<UserProvider>(
         create: (context) => UserProvider()..checkMyInformation(),
+      ),
+      ChangeNotifierProvider<StatusProvider>(
+        create: (context) => StatusProvider(),
       ),
       BlocProvider<AuthCubit>(
         create: (context) => AuthCubit(),
