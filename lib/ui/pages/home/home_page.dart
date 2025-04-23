@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:chat/core/gen/assets.gen.dart';
 import 'package:chat/core/gen/flutter_icon_icons.dart';
 import 'package:chat/core/services/auth_services.dart';
 import 'package:chat/core/utils/empty_space.dart';
 import 'package:chat/data/enum/state_handler.dart';
 import 'package:chat/ui/pages/auth/provider/user_provider.dart';
+import 'package:chat/ui/pages/home/provider/ghost_provider.dart';
 import 'package:chat/ui/pages/setting/edite_profile_page.dart';
 import 'package:chat/ui/pages/setting/settings_page.dart';
 import 'package:chat/ui/widgets/dialog.dart';
@@ -24,7 +24,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool showArchive = false;
-  ValueNotifier<bool> onGhostMode = ValueNotifier(false);
   ValueNotifier<bool> showText = ValueNotifier(true);
 
   @override
@@ -71,37 +70,35 @@ class _HomePageState extends State<HomePage> {
         title: GestureDetector(
           onTap: _onTextTap,
           child: ValueListenableBuilder(
-              valueListenable: onGhostMode,
-              builder: (context, isOn, _) {
-                return ValueListenableBuilder(
-                    valueListenable: showText,
-                    builder: (context, onShow, _) {
-                      return Text.rich(TextSpan(children: [
-                        WidgetSpan(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(
-                                milliseconds: 500), // Animation duration
-                            transitionBuilder:
-                                (Widget child, Animation<double> animation) {
-                              return FadeTransition(
-                                  opacity: animation, child: child);
-                            }, // Animation duration
-                            child: onShow
-                                ? Text(
-                                    'You Are ',
-                                    key: const ValueKey('ghostModeText'),
-                                  )
-                                : Text(
-                                    '',
-                                    key: ValueKey('empty'),
-                                  ),
-                          ),
-                        ),
-                        TextSpan(
-                          text: isOn ? 'Ghost' : 'Online',
-                        ),
-                      ]));
-                    });
+              valueListenable: showText,
+              builder: (context, onShow, _) {
+                return Text.rich(TextSpan(children: [
+                  WidgetSpan(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(
+                          milliseconds: 500), // Animation duration
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      }, // Animation duration
+                      child: onShow
+                          ? Text(
+                              'You Are ',
+                              key: const ValueKey('ghostModeText'),
+                            )
+                          : Text(
+                              '',
+                              key: ValueKey('empty'),
+                            ),
+                    ),
+                  ),
+                  TextSpan(
+                    text: (context.watch<UserProvider>().userData.ghostMode ??
+                            false)
+                        ? 'Ghost'
+                        : 'Online',
+                  ),
+                ]));
               }),
         ),
         actions: [
@@ -111,16 +108,25 @@ class _HomePageState extends State<HomePage> {
               // Add your action here
             },
           ),
-          ValueListenableBuilder(
-            valueListenable: onGhostMode,
-            builder: (context, isOn, _) => IconButton(
-              icon: Icon(
-                  isOn ? FlutterIcon.ghost : Icons.online_prediction_rounded),
-              onPressed: () {
-                onGhostMode.value = !isOn;
+          Consumer<GhostProvider>(builder: (context, ghost, _) {
+            return IconButton(
+              icon: Icon((ghost.isGhostMode)
+                  ? FlutterIcon.ghost
+                  : Icons.online_prediction_rounded),
+              onPressed: () async {
+                await ghost.toggleGhostMode();
+                if (ghost.ghostState == StateHandler.loaded) {
+                  if (context.mounted) {
+                    context.read<UserProvider>().changeUserData(
+                          context.read<UserProvider>().userData.copyWith(
+                                ghostMode: ghost.isGhostMode,
+                              ),
+                        );
+                  }
+                }
               },
-            ),
-          ),
+            );
+          }),
         ],
       ),
       floatingActionButton: FloatingActionButton.small(
@@ -254,10 +260,17 @@ class _HomePageState extends State<HomePage> {
                           8.h,
                           InkWell(
                             onTap: () {
-                              context
-                                  .read<StatusProvider>()
-                                  .checkMyInformation();
-                              DialogManager(context).showListOfStatuses();
+                              context.read<StatusProvider>().getAllStatuses();
+                              DialogManager(context).showListOfStatuses(
+                                onSuccess: (status) {
+                                  Navigator.of(context).pop();
+                                  context
+                                      .read<UserProvider>()
+                                      .changeUserData(auth.userData.copyWith(
+                                        status: status.value,
+                                      ));
+                                },
+                              );
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(

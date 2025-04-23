@@ -30,7 +30,8 @@ class DialogManager {
     );
   }
 
-  void showListOfStatuses() async {
+  void showListOfStatuses(
+      {final Function(MapEntry<String, String> status)? onSuccess}) async {
     await show(content:
         Consumer<StatusProvider>(builder: (context, statusProvider, child) {
       if (statusProvider.state == StateHandler.loaded) {
@@ -44,7 +45,12 @@ class DialogManager {
               final status = statusProvider.statuses.entries.elementAt(index);
               return ListTile(
                 title: Text(status.value),
-                onTap: () {},
+                onTap: () async {
+                  final result = await statusProvider.changeStatus(status.key);
+                  if (result) {
+                    onSuccess?.call(status);
+                  }
+                },
               );
             },
           ),

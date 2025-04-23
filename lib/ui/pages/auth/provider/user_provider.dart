@@ -16,12 +16,11 @@ class UserProvider with ChangeNotifier {
   StateHandler userState = StateHandler.initial;
 
   void checkMyInformation() async {
-    if (isLoggedIn) {
-      userState = StateHandler.empty;
+    if (!isLoggedIn) {
+      userState = StateHandler.loading;
       notifyListeners();
     }
-    userState = StateHandler.loading;
-    notifyListeners();
+
     try {
       final response = await AuthRepository.getMyProfile();
       _userData = response;
@@ -37,5 +36,10 @@ class UserProvider with ChangeNotifier {
       userState = StateHandler.error;
       notifyListeners();
     }
+  }
+
+  void changeUserData(final MeModel user) {
+    _userData = user;
+    notifyListeners();
   }
 }

@@ -1,5 +1,3 @@
-import 'package:chat/data/model/auth/me_model.dart';
-import 'package:chat/data/repositories/auth_repository.dart';
 import 'package:chat/data/repositories/user_repository.dart';
 import 'package:chat/data/storage/shared_preferences_helper.dart';
 import 'package:dio/dio.dart';
@@ -13,7 +11,7 @@ class StatusProvider with ChangeNotifier {
 
   StateHandler state = StateHandler.initial;
 
-  void checkMyInformation() async {
+  void getAllStatuses() async {
     state = StateHandler.loading;
     notifyListeners();
     try {
@@ -30,6 +28,27 @@ class StatusProvider with ChangeNotifier {
       }
       state = StateHandler.error;
       notifyListeners();
+    }
+  }
+
+  Future<bool> changeStatus(String statusKey) async {
+    state = StateHandler.loading;
+    notifyListeners();
+    try {
+      await UserRepository.changeStatus(statusKey);
+      state = StateHandler.loaded;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      if (e is DioException) {
+        if (e.response?.statusCode == 401) {
+          AuthTokenStorage.clearToken();
+          notifyListeners();
+        }
+      }
+      state = StateHandler.error;
+      notifyListeners();
+      return false;
     }
   }
 }

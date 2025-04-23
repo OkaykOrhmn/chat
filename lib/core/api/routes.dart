@@ -9,4 +9,5 @@ class Routes {
   //User
   static const String status = '/user/status';
   static const String statuses = '/user/statuses';
+  static const String ghostMode = '/user/ghost';
 }

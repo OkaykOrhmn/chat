@@ -1,0 +1,2 @@
+C:/Users/Kia/Desktop/chat/android/app/.cxx/RelWithDebInfo/134w6i5b/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Kia/Desktop/chat/android/app/.cxx/RelWithDebInfo/134w6i5b/armeabi-v7a/CMakeFiles/rebuild_cache.dir

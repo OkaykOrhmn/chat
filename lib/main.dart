@@ -3,6 +3,7 @@ import 'package:chat/firebase_options.dart';
 import 'package:chat/ui/pages/auth/auth_gate.dart';
 import 'package:chat/ui/pages/auth/cubit/auth_cubit.dart';
 import 'package:chat/ui/pages/auth/provider/user_provider.dart';
+import 'package:chat/ui/pages/home/provider/ghost_provider.dart';
 import 'package:chat/ui/theme/theme_brightnes_changer.dart';
 import 'package:chat/ui/theme/theme_changer.dart';
 import 'package:chat/ui/widgets/provider/status_provider.dart';
@@ -37,6 +38,11 @@ void main() async {
       ),
       ChangeNotifierProvider<StatusProvider>(
         create: (context) => StatusProvider(),
+      ),
+      ChangeNotifierProvider<GhostProvider>(
+        create: (context) => GhostProvider()
+          ..setGhostMode(
+              context.read<UserProvider>().userData.ghostMode ?? false),
       ),
       BlocProvider<AuthCubit>(
         create: (context) => AuthCubit(),
